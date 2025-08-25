@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -9,5 +10,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::apiResource('/reviews', ReviewController::class);
+Route::apiResource('/destinations', DestinationController::class);
 
 Route::get('/reviews-home', [ReviewController::class, 'home'])->name('home');
