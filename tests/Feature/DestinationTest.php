@@ -158,7 +158,7 @@ class DestinationTest extends TestCase
         $id = Destination::factory()->create()->id;
         $destination = Destination::factory()->uploadedImage()->make();
 
-        $response = $this->putJson(route('destinations.update', ['destination' => $id]), $destination->toArray());
+        $response = $this->patchJson(route('destinations.update', ['destination' => $id]), $destination->toArray());
 
         $response->assertOk();
         $response->assertJson([
@@ -174,9 +174,38 @@ class DestinationTest extends TestCase
         ]);
     }
 
-    public function test_must_return_not_found_with_invalid_id()
+    public function test_update_must_return_updated_destination()
     {
-        $response = $this->getJson(route('destinations.show', ['destination' => 99999]));
+        $destination = Destination::factory()->create();
+
+        $response = $this->patchJson(route('destinations.update', ['destination' => $destination->id]), ['name' => 'testing']);
+
+        $response->assertOk();
+        $response->assertJson([
+            'photo' => $destination->photo,
+            'name' => 'testing',
+            'price' => $destination->price
+        ]);
+        $this->assertDatabaseHas('destinations', [
+            'photo' => $destination->photo,
+            'name' => 'testing',
+            'price' => $destination->price
+        ]);
+    }
+
+    public function test_update_must_return_not_found_with_invalid_id()
+    {
+        $response = $this->putJson(route('destinations.update', ['destination' => 99999]), ['destination' => 'testing']);
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'message' => 'Destination not found.'
+        ]);
+    }
+
+    public function test_destroy_must_return_not_found_with_invalid_id()
+    {
+        $response = $this->deleteJson(route('destinations.show', ['destination' => 99999]));
 
         $response->assertStatus(404);
         $response->assertJsonPath('message', 'Destination not found.');

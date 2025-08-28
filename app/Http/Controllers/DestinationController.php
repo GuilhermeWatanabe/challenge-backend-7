@@ -32,16 +32,8 @@ class DestinationController extends Controller
         ));
     }
 
-    public function show(int $id)
+    public function show(Destination $destination)
     {
-        $destination = Destination::find($id);
-
-        if(!$destination) {
-            return response()->json([
-               'message' => 'Destination not found.'
-            ], 404);
-        }
-
         return $destination;
     }
 
@@ -56,16 +48,8 @@ class DestinationController extends Controller
         return $destination;
     }
 
-    public function destroy(int $id)
+    public function destroy(Destination $destination)
     {
-        $destination = Destination::find($id);
-
-        if(!$destination) {
-            return response()->json([
-                'message' => 'Destination not found.'
-            ], 404);
-        }
-
         $destination->delete();
 
         return response()->noContent();

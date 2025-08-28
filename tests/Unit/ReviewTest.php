@@ -13,6 +13,33 @@ class ReviewTest extends TestCase
 
     private string $storagePhotoFolder = 'review_photo/';
 
+    public function text_index_must_return_empty_array_with_code_200()
+    {
+        $response = $this->getJson(route('reviews.index'));
+
+        $response->assertOk();
+        $response->assertJsonCount(0);
+        $this->assertDatabaseEmpty('reviews');
+    }
+
+    public function test_index_must_return_five_registers()
+    {
+        $reviews = Review::factory()->count(5)->create();
+
+        $response = $this->getJson(route('reviews.index'));
+
+        foreach ($reviews as $r) {
+            $response->assertJsonFragment([
+                'photo' => $r->photo,
+                'review' => $r->review,
+                'user_name' => $r->user_name
+            ]);
+        }
+        $response->assertOk();
+        $response->assertJsonCount(5);
+        $this->assertDatabaseCount('reviews', 5);
+    }
+
     public function test_must_return_3_reviews_in_reviews_home_url()
     {
         Review::factory()->count(10)->create();
@@ -129,7 +156,7 @@ class ReviewTest extends TestCase
         $id = Review::factory()->create()->id;
         $review = Review::factory()->uploadedImage()->make();
 
-        $response = $this->putJson(route('reviews.update', ['review' => $id]), $review->toArray());
+        $response = $this->patchJson(route('reviews.update', ['review' => $id]), $review->toArray());
 
         $response->assertOk();
         $response->assertJson([
@@ -145,7 +172,36 @@ class ReviewTest extends TestCase
         ]);
     }
 
-    function test_must_return_not_found_with_invalid_id()
+    public function test_update_must_return_updated_user_name()
+    {
+        $review = Review::factory()->create();
+
+        $response = $this->patchJson(route('reviews.update', ['review' => $review->id]), ['user_name' => 'testing']);
+
+        $response->assertOk();
+        $response->assertJson([
+            'photo' => $review->photo,
+            'review' => $review->review,
+            'user_name' => 'testing'
+        ]);
+        $this->assertDatabaseHas('reviews', [
+            'photo' => $review->photo,
+            'review' => $review->review,
+            'user_name' => 'testing'
+        ]);
+    }
+
+    public function test_update_must_return_not_found_with_invalid_id()
+    {
+        $response = $this->putJson(route('reviews.update', ['review' => 99999]), ['user_name' => 'testing']);
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'message' => 'Review not found.'
+        ]);
+    }
+
+    public function test_delete_must_return_not_found_with_invalid_id()
     {
         $response = $this->deleteJson(route('reviews.show', ['review' => 99999]));
 
@@ -153,7 +209,7 @@ class ReviewTest extends TestCase
         $response->assertJsonPath('message', 'Review not found.');
     }
 
-    function test_must_delete_a_review()
+    public function test_must_delete_a_review()
     {
         $id = Review::factory()->create()->id;
 

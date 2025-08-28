@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ReviewFormRequest;
+use App\Http\Requests\StoreReviewFormRequest;
+use App\Http\Requests\UpdateReviewFormRequest;
 use App\Models\Review;
-use http\Env\Response;
 
 class ReviewController extends Controller
 {
@@ -18,7 +18,7 @@ class ReviewController extends Controller
         return Review::inRandomOrder()->take(3)->get();
     }
 
-    public function store(ReviewFormRequest $request)
+    public function store(StoreReviewFormRequest $request)
     {
         return Review::create(array_merge(
             ['photo' => $request->file('photo')->store('review_photo', 'public')],
@@ -26,20 +26,12 @@ class ReviewController extends Controller
         ));
     }
 
-    public function show(int $id)
+    public function show(Review $review)
     {
-        $review = Review::find($id);
-
-        if(!$review) {
-            return response()->json([
-               'message' => 'Review not found.'
-            ], 404);
-        }
-
         return $review;
     }
 
-    public function update(ReviewFormRequest $request, Review $review)
+    public function update(UpdateReviewFormRequest $request, Review $review)
     {
         if($request->hasFile('photo')) {
             $review->photo = $request->file('photo')->store('review_photo', 'public');
@@ -50,16 +42,8 @@ class ReviewController extends Controller
         return $review;
     }
 
-    public function destroy(int $id)
+    public function destroy(Review $review)
     {
-        $review = Review::find($id);
-
-        if(!$review) {
-            return response()->json([
-                'message' => 'Review not found.'
-            ], 404);
-        }
-
         $review->delete();
 
         return response()->noContent();
