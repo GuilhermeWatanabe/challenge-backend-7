@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\GoogleAiService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +12,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(GoogleAiService::class, function () {
+            $apiKey = config('services.googleai.api_key');
+
+            return new GoogleAiService(apiKey: $apiKey);
+        });
     }
 
     /**

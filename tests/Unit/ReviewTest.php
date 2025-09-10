@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Review;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ReviewTest extends TestCase
@@ -12,6 +13,12 @@ class ReviewTest extends TestCase
     use RefreshDatabase;
 
     private string $storagePhotoFolder = 'review_photo/';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Storage::fake('public');
+    }
 
     public function text_index_must_return_empty_array_with_code_200()
     {
@@ -24,7 +31,7 @@ class ReviewTest extends TestCase
 
     public function test_index_must_return_five_registers()
     {
-        $reviews = Review::factory()->count(5)->create();
+        $reviews = Review::factory()->uploadedImage()->count(5)->create();
 
         $response = $this->getJson(route('reviews.index'));
 
@@ -42,7 +49,7 @@ class ReviewTest extends TestCase
 
     public function test_must_return_3_reviews_in_reviews_home_url()
     {
-        Review::factory()->count(10)->create();
+        Review::factory()->uploadedImage()->count(10)->create();
 
         $response = $this->getJson(route('home'));
 
@@ -131,7 +138,7 @@ class ReviewTest extends TestCase
 
     public function test_show_must_return_a_review()
     {
-        $review = Review::factory()->create();
+        $review = Review::factory()->uploadedImage()->create();
 
         $response = $this->getJson(route('reviews.show', ['review' => $review->id]));
 
@@ -153,7 +160,7 @@ class ReviewTest extends TestCase
 
     public function test_update_must_return_updated_info()
     {
-        $id = Review::factory()->create()->id;
+        $id = Review::factory()->uploadedImage()->create()->id;
         $review = Review::factory()->uploadedImage()->make();
 
         $response = $this->patchJson(route('reviews.update', ['review' => $id]), $review->toArray());
@@ -174,7 +181,7 @@ class ReviewTest extends TestCase
 
     public function test_update_must_return_updated_user_name()
     {
-        $review = Review::factory()->create();
+        $review = Review::factory()->uploadedImage()->create();
 
         $response = $this->patchJson(route('reviews.update', ['review' => $review->id]), ['user_name' => 'testing']);
 
@@ -211,7 +218,7 @@ class ReviewTest extends TestCase
 
     public function test_must_delete_a_review()
     {
-        $id = Review::factory()->create()->id;
+        $id = Review::factory()->uploadedImage()->create()->id;
 
         $response = $this->deleteJson(route('reviews.update', ['review' => $id]));
 

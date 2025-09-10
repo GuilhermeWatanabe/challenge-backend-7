@@ -18,13 +18,12 @@ class DestinationFactory extends Factory
      */
     public function definition(): array
     {
-        Storage::fake('public');
-
-        $filePath = UploadedFile::fake()->image('photo.jpg')->store('destination_photo', 'public');
-
         return [
-            'photo' => $filePath,
+            'photo_1' => null,
+            'photo_2' => null,
             'name' => fake()->country(),
+            'meta_description' => fake()->text(maxNbChars: 160),
+            'description' => fake()->paragraphs(2, true),
             'price' => fake()->randomFloat(2)
         ];
     }
@@ -33,7 +32,8 @@ class DestinationFactory extends Factory
     {
         return $this->state(function () {
            return [
-               'photo' => UploadedFile::fake()->image('photo.jpg')
+               'photo_1' => UploadedFile::fake()->image('photo1.jpg', 100, 100),
+               'photo_2' => UploadedFile::fake()->image('photo2.jpg', 200, 200)
            ];
         });
     }

@@ -1,8 +1,10 @@
 <?php
 
+use App\Exceptions\TextGenerationFailedException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,5 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->renderable(function (TextGenerationFailedException $e, Request $request) {
+            if($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'The text generation service is currently unavailable. Please try again later.',
+                    'error' => app()->isProduction() ? null : $e->getMessage()
+                ], 503);
+            }
+        });
     })->create();

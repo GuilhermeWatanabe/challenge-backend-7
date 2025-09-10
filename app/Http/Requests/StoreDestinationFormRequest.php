@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\DifferentImageRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreDestinationFormRequest extends FormRequest
@@ -22,9 +23,12 @@ class StoreDestinationFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'photo' => 'required|image',
+            'photo_1' => 'required|image',
+            'photo_2' => ['required', 'image', new DifferentImageRule('photo_1')],
+            'meta_description' => 'required|min:1',
+            'description' => 'nullable',
             'name' => 'required|min:1',
-            'price' => 'required|decimal:0,2|min:1'
+            'price' => 'required|decimal:0,2|min:1|numeric:strict'
         ];
     }
 }

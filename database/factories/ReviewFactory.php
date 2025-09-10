@@ -18,12 +18,8 @@ class ReviewFactory extends Factory
      */
     public function definition(): array
     {
-        Storage::fake('public');
-
-        $filePath = UploadedFile::fake()->image('photo.jpg')->store('review_photo', 'public');
-
         return [
-            'photo' => $filePath,
+            'photo' => null,
             'review' => fake()->realTextBetween(20, 150),
             'user_name' => fake()->name
         ];
